@@ -1,11 +1,12 @@
 import { mongoose, database } from '../services/mongoose'
 
 const user = new mongoose.Schema({
-  name: {
+  displayName: {
     type: String,
     index: true,
     unique: true,
   },
+  name: String,
   icon: String,
   password: String,
   riot: {
@@ -13,21 +14,22 @@ const user = new mongoose.Schema({
     accountId: String,
     puuid: String,
   },
-  friends: [mongoose.Types.ObjectId],
-  pendingFriends: [mongoose.Types.ObjectId],
+  friends: [String],
+  pendingFriends: [String],
 })
 
 export interface UserProps {
+  displayName: String
   name: String
   icon: String
-  password: String
+  password: string
   riot: {
     id: String
     accountId: String
     puuid: String
   }
-  friends: Array<mongoose.Types.ObjectId>
-  pendingFriends: Array<mongoose.Types.ObjectId>
+  friends: Array<String>
+  pendingFriends: Array<String>
 }
 
 const User = mongoose.model<UserProps>('users', user)

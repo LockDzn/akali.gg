@@ -4,13 +4,34 @@ import createError from 'http-errors'
 import User from '../schemas/user.schema'
 import Sessions from '../schemas/sessions.schema'
 
-import { hash } from '../utils/hash'
 import { getSummonerByName, getThirdPartyCode } from '../services/riotapi'
+
+import { hash } from '../utils/hash'
 import { signToken } from '../utils/jwt'
+import { formatSummonerName } from '../utils/formatString'
 
 async function index(request: Request, response: Response) {
-  new Sessions({ name: 'ola' }).save()
-  return response.json({})
+  const { name } = request.params
+
+  const formattedName = formatSummonerName(name)
+
+  const user = await User.findOne({ name: formattedName }).exec()
+
+  if (!user) {
+    return response.status(404).json({
+      message: `User ${formattedName} not found`,
+      name: 'UserNotFound',
+    })
+  }
+
+  return response.status(200).json({
+    id: user._id,
+    name: user.name,
+    displayName: user.displayName,
+    icon: user.icon,
+    riot: user.riot,
+    friends: user.friends,
+  })
 }
 
 async function create(request: Request, response: Response) {
@@ -22,14 +43,15 @@ async function create(request: Request, response: Response) {
     return response.status(400).json({ message: 'Missing information on body' })
   }
 
-  const findUser = await User.findOne({ name: summonerName }).exec()
+  const formattedSummonerName = formatSummonerName(summonerName)
+
+  const findUser = await User.findOne({ name: formattedSummonerName }).exec()
   if (findUser) {
     return response
       .status(400)
       .json({ message: 'User already exists', name: 'ExistingUser' })
   }
 
-  const formattedSummonerName = summonerName.replace(/\s/g, '').toLowerCase()
   const thirdPartyCode = await getThirdPartyCode(formattedSummonerName)
   const summonerUser = await getSummonerByName(formattedSummonerName)
 
@@ -49,7 +71,8 @@ async function create(request: Request, response: Response) {
     const passwordHash = await hash(password)
 
     const user = await new User({
-      name: summonerName,
+      name: formattedSummonerName,
+      displayName: summonerName,
       icon: summonerUser.profileIconId,
       password: passwordHash,
       riot: {
@@ -81,39 +104,7 @@ async function create(request: Request, response: Response) {
 }
 
 async function remove(request: Request, response: Response) {
-  const { summonerName, password } = request.body
-
-  if (!summonerName || !password) {
-    return response.status(400).json({ message: 'Missing information on body' })
-  }
-
-  const formattedSummonerName = summonerName.replace(/\s/g, '').toLowerCase()
-  const thirdPartyCode = await getThirdPartyCode(formattedSummonerName)
-  const summonerUser = await getSummonerByName(formattedSummonerName)
-
-  if (thirdPartyCode.code == 400) {
-    return response.status(401).json({ message: 'Not authorized' })
-  }
-
-  try {
-    const passwordHash = hash(password)
-
-    const user = new User({
-      name: summonerName,
-      icon: '',
-      password: passwordHash,
-      riot: {
-        id: summonerUser.id,
-        accountId: summonerUser.accountId,
-        puuid: summonerUser.puuid,
-      },
-    }).save()
-
-    response.status(200).json(user)
-  } catch (err) {
-    console.error(err)
-    return response.status(500).json({ message: 'Try later' })
-  }
+  console.log('')
 }
 
 export default { index, create }

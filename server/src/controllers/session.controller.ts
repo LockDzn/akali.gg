@@ -6,6 +6,7 @@ import Sessions from '../schemas/sessions.schema'
 
 import { compare, hash } from '../utils/hash'
 import { signToken, verifyToken } from '../utils/jwt'
+import { formatSummonerName } from '../utils/formatString'
 
 async function verify(
   request: Request,
@@ -24,19 +25,20 @@ async function create(request: Request, response: Response) {
     throw createError(400, `Missing information on body`)
   }
 
-  const findUser = await User.findOne({ name: summonerName }).exec()
+  const formattedSummonerName = formatSummonerName(summonerName)
+
+  const findUser = await User.findOne({ name: formattedSummonerName }).exec()
   if (!findUser) {
     throw createError(400, `User already exists`)
   }
 
-  const formattedSummonerName = summonerName.replace(/\s/g, '').toLowerCase()
   const result = await compare(password, findUser.password)
 
   if (!result) {
-    throw createError(401, `Not authorized`)
+    throw createError(401, `Summoner name or invalid password`)
   }
 
-  const jwToken = signToken({ name: summonerName, _id: findUser._id })
+  const jwToken = signToken({ name: formattedSummonerName, _id: findUser._id })
 
   const userSessions = await Sessions.findById({ _id: findUser._id })
 

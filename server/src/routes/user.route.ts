@@ -8,25 +8,26 @@ import friendController from '../controllers/friend.controller'
 
 const routes = express.Router()
 
-routes.get('/user', asyncHandler(userController.index))
-routes.post('/user', asyncHandler(userController.create))
+// Route to create user
+routes.post('/user/create', asyncHandler(userController.create))
 
-routes.get('/user/:id/friends', asyncHandler(friendController.friendsList))
+routes.get('/user/:name', asyncHandler(userController.index))
+routes.get('/user/:name/friends', asyncHandler(friendController.friendsList))
 
 routes.post(
-  '/user/friend',
+  '/me/friend',
   asyncHandler(verifyAuthentication),
   asyncHandler(friendController.sendFriendRequest)
 )
 
 routes.get(
-  '/user/paddingfriends',
+  '/me/paddingfriends',
   asyncHandler(verifyAuthentication),
   asyncHandler(friendController.friendWishList)
 )
 
 routes.post(
-  '/user/paddingfriends',
+  '/me/paddingfriends',
   asyncHandler(verifyAuthentication),
   asyncHandler(friendController.acceptFriend)
 )
