@@ -8,12 +8,23 @@ import { compare, hash } from '../utils/hash'
 import { signToken, verifyToken } from '../utils/jwt'
 import { formatSummonerName } from '../utils/formatString'
 
-async function verify(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
-  return response.json({ message: 'ok' })
+async function verify(request: Request, response: Response) {
+  const userId = request.user ? request.user.id : ''
+
+  console.log(request.cookies)
+
+  const findUser = await User.findOne({ _id: userId }).exec()
+  if (!findUser) {
+    throw createError(400, `User already exists`)
+  }
+
+  return response.json({
+    id: findUser._id,
+    name: findUser.name,
+    displayName: findUser.displayName,
+    icon: findUser.icon,
+    riot: findUser.riot,
+  })
 }
 
 async function create(request: Request, response: Response) {
@@ -47,7 +58,16 @@ async function create(request: Request, response: Response) {
     userSessions.save()
   }
 
-  return response.status(200).json({ token: jwToken })
+  return response.status(200).json({
+    token: jwToken,
+    user: {
+      id: findUser._id,
+      name: findUser.name,
+      displayName: findUser.displayName,
+      icon: findUser.icon,
+      riot: findUser.riot,
+    },
+  })
 }
 
 export default { verify, create }

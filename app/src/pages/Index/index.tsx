@@ -1,4 +1,9 @@
+import { useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+
 import { Container, Main, Presentation, Duel, PlayerCard } from './styles'
+
+import { useAuth } from '../../hooks/useAuth'
 
 import { Button } from '../../components/Button'
 import { Header } from '../../components/Header'
@@ -9,6 +14,15 @@ import MoraganaIcon from '../../assets/icons/morgana.png'
 import EzrealIcon from '../../assets/icons/ezreal.png'
 
 export function Index() {
+  const history = useHistory()
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      history.push('/home')
+    }
+  }, [user, history])
+
   return (
     <Container>
       <Header />

@@ -1,18 +1,22 @@
-import { useState } from 'react'
 import { IoIosPeople } from 'react-icons/io'
+
+import { useAuth } from '../../hooks/useAuth'
 
 import { Button } from '../Button'
 
 import { Container, Unauthenticated, Authenticated } from './styles'
 
 import AkaliIcon from '../../assets/icons/akali.png'
+import { useHistory } from 'react-router-dom'
 
 export function Header() {
-  const [isAuthenticated, setisAuthenticated] = useState(true)
+  const history = useHistory()
+
+  const { user, logOff } = useAuth()
 
   return (
     <Container>
-      {isAuthenticated ? (
+      {user ? (
         <Authenticated>
           <div className="logo">
             <h1>Akali.gg</h1>
@@ -21,11 +25,11 @@ export function Header() {
             <div className="account">
               <div className="user">
                 <img src={AkaliIcon} alt="User profile" />
-                <span>LoockDzn</span>
+                <span>{user.displayName}</span>
               </div>
               <div className="user-dropdown">
                 <button disabled>Conta</button>
-                <button>Deslogar</button>
+                <button onClick={logOff}>Deslogar</button>
               </div>
             </div>
             <div className="bar"></div>
@@ -42,8 +46,12 @@ export function Header() {
             <h1>Akali.gg</h1>
           </div>
           <div className="session">
-            <Button>Criar conta</Button>
-            <Button opaque>Iniciar sessão</Button>
+            <Button onClick={() => history.push('/create-account')}>
+              Criar conta
+            </Button>
+            <Button onClick={() => history.push('/auth')} opaque>
+              Iniciar sessão
+            </Button>
           </div>
         </Unauthenticated>
       )}

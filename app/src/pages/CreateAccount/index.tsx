@@ -1,17 +1,14 @@
 import { useState } from 'react'
-import { Button } from '../../components/Button'
+import { useHistory } from 'react-router-dom'
+import Cookies from 'js-cookie'
+
+import api from '../../services/api'
 
 import { Container, Input, Select } from './styles'
 
-import LolLogo from '../../assets/lol-logo.png'
-import api from '../../services/api'
+import { Button } from '../../components/Button'
 
-interface FromErrorsProps {
-  server: boolean
-  name: boolean
-  code: boolean
-  password: boolean
-}
+import LolLogo from '../../assets/lol-logo.png'
 
 export function CreateAccount() {
   const [server, setServer] = useState('br')
@@ -21,12 +18,9 @@ export function CreateAccount() {
 
   const [fromLoading, setFromLoading] = useState(false)
 
-  const [fromErrors, setFromErrors] = useState<FromErrorsProps>({
-    server: false,
-    name: false,
-    code: false,
-    password: false,
-  })
+  const [errorName, setErrorName] = useState('')
+
+  const history = useHistory()
 
   async function handleCreateAccount(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -36,24 +30,21 @@ export function CreateAccount() {
     setFromLoading(true)
 
     try {
-      const response = await api.post('/user', {
+      const response = await api.post('/user/create', {
         server,
         summonerName,
         verificationCode,
         password,
       })
 
-      console.log(response.data)
+      console.log(response.data.token)
+      Cookies.set('token', response.data.token, { expires: 1 })
+      history.push('/home')
     } catch (error) {
       const response = error.response.data
 
-      if (response.name === 'InvalidVerificationCode') {
-        setFromErrors({
-          server: false,
-          name: false,
-          code: true,
-          password: false,
-        })
+      if (response.name) {
+        setErrorName(response.name)
       }
     }
 
@@ -106,7 +97,7 @@ export function CreateAccount() {
                 id="code"
                 type="password"
                 value={verificationCode}
-                error={fromErrors.code}
+                error={errorName === 'InvalidVerificationCode'}
                 onChange={(event) => setVerificationCode(event.target.value)}
               />
               <a href="#top" target="_blank" rel="noopener noreferrer">

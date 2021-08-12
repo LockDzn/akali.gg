@@ -4,6 +4,8 @@ import { ThemeProvider } from 'styled-components'
 import GlobalStyle from './styles/global'
 import { theme } from './styles/theme'
 
+import { AuthContextProvider } from './contexts/auth.context'
+
 import { Routes } from './routes'
 
 function App() {
@@ -11,7 +13,9 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <Routes />
+        <AuthContextProvider>
+          <Routes />
+        </AuthContextProvider>
       </ThemeProvider>
     </>
   )
