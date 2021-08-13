@@ -1,6 +1,10 @@
 import styled from 'styled-components'
 
-export const Container = styled.div`
+interface ContainerProps {
+  disableSidebar?: boolean
+}
+
+export const Container = styled.div<ContainerProps>`
   .app {
     display: flex;
     height: calc(100vh - 50px);
@@ -8,8 +12,11 @@ export const Container = styled.div`
     section {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 4fr;
-      /* gap: 10rem; */
+
+      ${(props) =>
+        props.disableSidebar
+          ? `grid-template-columns: 0fr 1fr;`
+          : `grid-template-columns: 1fr 4fr;`}
     }
   }
 `

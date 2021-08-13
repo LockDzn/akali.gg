@@ -12,7 +12,11 @@ import { Container, Section, Games, Game } from './styles'
 import LolBanner from '../../assets/lol-banner.jpg'
 import { useState } from 'react'
 
-export function Sidebar() {
+interface Props {
+  hide?: boolean
+}
+
+export function Sidebar({ hide = false }: Props) {
   const [createRoomSection, setCreateRoomSection] = useState(true)
   const history = useHistory()
 
@@ -25,7 +29,7 @@ export function Sidebar() {
   }
 
   return (
-    <Container>
+    <Container hide={hide}>
       <div className="header">
         <div className="seleted"></div>
         <div className="title">

@@ -1,10 +1,14 @@
 import styled from 'styled-components'
 
-export const Container = styled.div`
+interface ContainerProps {
+  hide?: boolean
+}
+
+export const Container = styled.div<ContainerProps>`
   background: ${(props) => props.theme.color.black};
 
   height: 100%;
-  width: 18rem;
+  width: ${(props) => (!props.hide ? `18rem` : `0`)};
 
   overflow-y: scroll;
 

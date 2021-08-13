@@ -1,8 +1,10 @@
 import { createContext, useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 import Cookies from 'js-cookie'
 
-import api from '../services/api'
-import { useHistory } from 'react-router-dom'
+import { UserProps } from '../interfaces'
+
+import api from '../services/api.service'
 
 type AuthContextProviderProps = {
   children: React.ReactNode
@@ -13,18 +15,6 @@ interface AuthContextProps {
   isLoadingAuth: boolean
   logIn: (token: string, user: UserProps) => void
   logOff: () => void
-}
-
-export interface UserProps {
-  id: string
-  name: string
-  displayName: string
-  icon: string
-  riot: {
-    id: string
-    puuid: string
-    accountId: string
-  }
 }
 
 export const AuthContext = createContext({} as AuthContextProps)
