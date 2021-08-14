@@ -11,14 +11,13 @@ export async function verifyAuthentication(
   const { authorization } = request.headers
 
   if (!authorization) {
-    throw createError(400, `Missing authorization token`)
+    throw createError(400, `Missing authorization token.`)
   }
 
   try {
-    const result = await verifyToken(authorization)
-    request.user = { id: result._id, name: result.name }
+    await verifyToken(authorization)
     return next()
   } catch (error) {
-    throw createError(401, `Not authorized`)
+    throw createError(401, `Invalid authentication token.`)
   }
 }

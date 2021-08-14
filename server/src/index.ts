@@ -6,8 +6,11 @@ dotenv.config()
 
 import routes from './routes'
 import errorController from './controllers/error.controller'
+import requestsMiddleware from './middlewares/requests.middleware'
 
 const app = express()
+
+app.use(requestsMiddleware)
 
 app.use(express.json())
 app.use(cors())

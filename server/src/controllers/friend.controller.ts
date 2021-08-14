@@ -22,8 +22,11 @@ interface FriendProps {
 async function friendsList(request: Request, response: Response) {
   const { name } = request.params
 
-  if (!name) {
-    throw createError(400, `Need user id`)
+  if (!name || name.trim() === '') {
+    throw createError(400, {
+      title: 'NeedUsername',
+      message: `Missing "name" in body`,
+    })
   }
 
   const formattedName = formatSummonerName(name)
@@ -31,7 +34,10 @@ async function friendsList(request: Request, response: Response) {
   const user = await User.findOne({ name: formattedName }).exec()
 
   if (!user) {
-    throw createError(404, `User not found`)
+    throw createError(404, {
+      title: 'UserNotFound',
+      message: `User "${name}" does not exist`,
+    })
   }
 
   const friendsNames = user.friends
@@ -57,8 +63,81 @@ async function friendsList(request: Request, response: Response) {
   return response.status(200).json(friends)
 }
 
-async function friendWishList(request: Request, response: Response) {
-  const userId = request.user ? request.user.id : ''
+async function sendFriendRequest(request: Request, response: Response) {
+  const user = await User.findOne({ _id: request.user?._id }).exec()
+
+  const { name } = request.body
+
+  if (!name || name.trim() === '') {
+    throw createError(400, {
+      title: 'NeedUsername',
+      message: `Missing "name" in body`,
+    })
+  }
+
+  if (!user) {
+    throw createError(500, `user is not logged in.`)
+  }
+
+  const formattedName = formatSummonerName(name)
+
+  const newFriendUser = await User.findOne({ name: formattedName }).exec()
+
+  if (!newFriendUser) {
+    throw createError(404, {
+      title: 'UserNotFound',
+      message: `User "${name}" does not exist`,
+    })
+  }
+
+  if (newFriendUser._id.toString() == user?._id.toString()) {
+    throw createError(400, {
+      title: 'BadRequest',
+      message: `You can't send yourself a friend request.`,
+    })
+  }
+
+  if (newFriendUser.pendingFriends.includes(user?.name)) {
+    throw createError(400, {
+      title: 'BadRequest',
+      message: `Friend request has already been sent.`,
+    })
+  }
+
+  newFriendUser.pendingFriends.push(user.name)
+  newFriendUser.save()
+  response.status(200).json({ message: 'Friend request sent' })
+}
+
+async function removeFriend(request: Request, response: Response) {
+  const { name } = request.body
+
+  if (!name || name.trim() === '') {
+    throw createError(400, {
+      title: 'NeedUsername',
+      message: `Missing "name" in body`,
+    })
+  }
+
+  const user = await User.findOne({ _id: request.user?._id })
+
+  if (!user?.friends.includes(name)) {
+    throw createError(400, {
+      title: 'AreNotFriends',
+      message: `"${name}" is not your friend.`,
+    })
+  }
+
+  user.friends = user.friends.filter((username) => username !== name)
+  user.save()
+
+  return response.status(200).json({
+    message: 'Friend successfully removed.',
+  })
+}
+
+async function friendsRequestList(request: Request, response: Response) {
+  const userId = request.user ? request.user._id : ''
 
   const user = await User.findOne({ _id: userId }).exec()
 
@@ -86,12 +165,15 @@ async function friendWishList(request: Request, response: Response) {
 }
 
 async function acceptFriend(request: Request, response: Response) {
-  const userId = request.user ? request.user.id : ''
+  const userId = request.user ? request.user._id : ''
 
   const { name } = request.body
 
-  if (!name) {
-    throw createError(400, `Need user name`)
+  if (!name || name.trim() === '') {
+    throw createError(400, {
+      title: 'NeedUsername',
+      message: `Missing "name" in body`,
+    })
   }
 
   const formattedName = formatSummonerName(name)
@@ -99,7 +181,10 @@ async function acceptFriend(request: Request, response: Response) {
   const newFriendUser = await User.findOne({ name: name }).exec()
 
   if (!newFriendUser) {
-    throw createError(404, `User already exists`)
+    throw createError(404, {
+      title: 'UserNotFound',
+      message: `User "${name}" does not exist`,
+    })
   }
 
   const newFriendName = newFriendUser.name
@@ -107,7 +192,10 @@ async function acceptFriend(request: Request, response: Response) {
   const user = await User.findOne({ _id: userId }).exec()
 
   if (!user?.pendingFriends.includes(newFriendName)) {
-    throw createError(404, `This user has not sent a friend request.`)
+    throw createError(400, {
+      title: 'BadRequest',
+      message: `This user has not sent a friend request.`,
+    })
   }
 
   user.pendingFriends = user.pendingFriends.filter(
@@ -127,39 +215,38 @@ async function acceptFriend(request: Request, response: Response) {
     .json({ message: 'Friend request successfully accepted' })
 }
 
-async function sendFriendRequest(request: Request, response: Response) {
-  const userId = request.user ? request.user.id : ''
-  const user = await User.findOne({ _id: userId }).exec()
-
+async function rejectFriendRequest(request: Request, response: Response) {
   const { name } = request.body
 
-  if (!name) {
-    throw createError(400, `Need user name`)
+  const user = await User.findOne({ _id: request.user?._id })
+
+  if (!name || name.trim() === '') {
+    throw createError(400, {
+      title: 'NeedUsername',
+      message: `Missing "name" in body`,
+    })
   }
 
-  if (!user) {
-    throw createError(500, `You are not logged inNeed user name`)
+  if (!user?.pendingFriends.includes(name)) {
+    throw createError(400, {
+      title: 'BadRequest',
+      message: `"${name}" didn't send you a friend request.`,
+    })
   }
 
-  const formattedName = formatSummonerName(name)
+  user.pendingFriends = user.pendingFriends.filter(
+    (userName) => userName !== name
+  )
+  user.save()
 
-  const newFriendUser = await User.findOne({ name: formattedName }).exec()
-
-  if (!newFriendUser) {
-    throw createError(404, `User already exists`)
-  }
-
-  if (newFriendUser._id.toString() == user?._id.toString()) {
-    throw createError(400, `You can't send yourself a friend request`)
-  }
-
-  if (newFriendUser.pendingFriends.includes(user?.name)) {
-    throw createError(400, `Friend request has already been sent`)
-  }
-
-  newFriendUser.pendingFriends.push(user?.name)
-  newFriendUser.save()
-  response.status(200).json({ message: 'Friend request sent' })
+  return response.status(200).json({ message: 'Friend request was rejected.' })
 }
 
-export default { friendsList, sendFriendRequest, friendWishList, acceptFriend }
+export default {
+  friendsList,
+  sendFriendRequest,
+  rejectFriendRequest,
+  friendsRequestList,
+  acceptFriend,
+  removeFriend,
+}
