@@ -28,7 +28,9 @@ export function Header() {
                 <span>{user.displayName}</span>
               </div>
               <div className="user-dropdown">
-                <button disabled>Conta</button>
+                <button onClick={() => history.push(`/user/${user.name}`)}>
+                  Conta
+                </button>
                 <button onClick={logOff}>Deslogar</button>
               </div>
             </div>

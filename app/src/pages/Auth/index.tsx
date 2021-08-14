@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import Cookies from 'js-cookie'
 
-import api from '../../services/api'
+import api from '../../services/api.service'
 
 import { Container, Input } from './styles'
 
@@ -10,7 +10,7 @@ import { Button } from '../../components/Button'
 
 import LolLogo from '../../assets/lol-logo.png'
 import { useAuth } from '../../hooks/useAuth'
-import { UserProps } from '../../contexts/auth.context'
+import { UserProps } from '../../interfaces'
 
 export function Auth() {
   const [summonerName, setSummonerName] = useState('')

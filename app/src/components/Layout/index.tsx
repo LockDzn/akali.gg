@@ -5,15 +5,16 @@ import { Sidebar } from '../Sidebar'
 
 type Props = {
   children: React.ReactNode
+  disableSidebar?: boolean
 }
 
-export function Layout({ children }: Props) {
+export function Layout({ children, disableSidebar = false }: Props) {
   return (
-    <Container>
+    <Container disableSidebar={disableSidebar}>
       <Header />
       <div className="app">
         <section>
-          <Sidebar />
+          <Sidebar hide={disableSidebar} />
           {children}
         </section>
       </div>
