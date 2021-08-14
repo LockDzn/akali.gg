@@ -24,14 +24,26 @@ async function index(request: Request, response: Response) {
     })
   }
 
-  return response.status(200).json({
+  const data = {
+    isYourFriend: false,
+    itsYou: false,
     id: user._id,
     name: user.name,
     displayName: user.displayName,
     icon: user.icon,
     riot: user.riot,
     friends: user.friends,
-  })
+  }
+
+  if (request.user?.friends.includes(user.name)) {
+    data.isYourFriend = true
+  }
+
+  if (request.user?.name === user.name) {
+    data.itsYou = true
+  }
+
+  return response.status(200).json(data)
 }
 
 async function create(request: Request, response: Response) {

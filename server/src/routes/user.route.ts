@@ -20,16 +20,28 @@ routes.post(
   asyncHandler(friendController.sendFriendRequest)
 )
 
+routes.delete(
+  '/me/friend',
+  asyncHandler(verifyAuthentication),
+  asyncHandler(friendController.removeFriend)
+)
+
 routes.get(
   '/me/paddingfriends',
   asyncHandler(verifyAuthentication),
-  asyncHandler(friendController.friendWishList)
+  asyncHandler(friendController.friendsRequestList)
 )
 
 routes.post(
   '/me/paddingfriends',
   asyncHandler(verifyAuthentication),
   asyncHandler(friendController.acceptFriend)
+)
+
+routes.delete(
+  '/me/paddingfriends',
+  asyncHandler(verifyAuthentication),
+  asyncHandler(friendController.rejectFriendRequest)
 )
 
 export default routes
