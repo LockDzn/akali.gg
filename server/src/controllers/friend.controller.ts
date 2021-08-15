@@ -128,6 +128,18 @@ async function removeFriend(request: Request, response: Response) {
     })
   }
 
+  const friend = await User.findOne({ name: name })
+
+  if (!friend) {
+    throw createError(400, {
+      title: 'FriendNotFound',
+      message: `"${name}" was not found`,
+    })
+  }
+
+  friend.friends = friend.friends.filter((username) => username !== user.name)
+  friend.save()
+
   user.friends = user.friends.filter((username) => username !== name)
   user.save()
 
@@ -178,7 +190,7 @@ async function acceptFriend(request: Request, response: Response) {
 
   const formattedName = formatSummonerName(name)
 
-  const newFriendUser = await User.findOne({ name: name }).exec()
+  const newFriendUser = await User.findOne({ name: formattedName }).exec()
 
   if (!newFriendUser) {
     throw createError(404, {

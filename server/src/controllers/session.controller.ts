@@ -9,11 +9,7 @@ import { signToken, verifyToken } from '../utils/jwt'
 import { formatSummonerName } from '../utils/formatString'
 
 async function verify(request: Request, response: Response) {
-  const userId = request.user ? request.user.id : ''
-
-  console.log(request.cookies)
-
-  const findUser = await User.findOne({ _id: userId }).exec()
+  const findUser = await User.findOne({ _id: request.user?._id }).exec()
   if (!findUser) {
     throw createError(400, `User already exists`)
   }

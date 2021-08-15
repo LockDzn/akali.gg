@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
 import Cookies from 'js-cookie'
 
 import { UserProps } from '../interfaces'
@@ -22,8 +21,6 @@ export const AuthContext = createContext({} as AuthContextProps)
 export const AuthContextProvider = (props: AuthContextProviderProps) => {
   const [user, setUser] = useState<UserProps>()
   const [isLoadingAuth, setIsLoadingAuth] = useState(true)
-
-  const history = useHistory()
 
   useEffect(() => {
     verify()
