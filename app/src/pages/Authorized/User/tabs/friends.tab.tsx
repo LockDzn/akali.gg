@@ -18,9 +18,7 @@ export function FriendsTab() {
   const [tab, setTab] = useState(0)
   const [friends, setFriends] = useState<FriendProps[]>([])
   const [paddingFriends, setPaddingFriends] = useState<FriendProps[]>([])
-  const [isTheUserAuthenticated, setIsTheUserAuthenticated] = useState(
-    user?.name === name
-  )
+  const [isTheUserAuthenticated] = useState(user?.name === name)
 
   console.log(isTheUserAuthenticated)
 
@@ -34,7 +32,7 @@ export function FriendsTab() {
         setFriends(data)
       } catch (error) {}
     }
-  }, [])
+  }, [name])
 
   useEffect(() => {
     load()
@@ -50,7 +48,7 @@ export function FriendsTab() {
 
   async function acceptFriend(friendName: string) {
     try {
-      const response = await api.post(`/me/paddingfriends`, {
+      await api.post(`/me/paddingfriends`, {
         name: friendName,
       })
 
@@ -61,6 +59,21 @@ export function FriendsTab() {
       if (newFriend) {
         setFriends([...friends, newFriend])
       }
+
+      setPaddingFriends(
+        paddingFriends.filter((content) => content.name !== friendName)
+      )
+    } catch (error) {
+      alert('An error occurred, try later')
+      console.error(error)
+    }
+  }
+
+  async function rejectFriend(friendName: string) {
+    try {
+      await api.delete('/me/paddingfriends', {
+        data: { name: friendName },
+      })
 
       setPaddingFriends(
         paddingFriends.filter((content) => content.name !== friendName)
@@ -91,7 +104,7 @@ export function FriendsTab() {
       <div className="list">
         {tab === 0 &&
           friends.map((friend) => (
-            <div className="friendCard">
+            <div className="friendCard" key={friend.id}>
               <img
                 src="https://assets.faceit-cdn.net/avatars/f6df2599-8174-467b-a4e9-fdfe0e40a719_1615691262786.jpg"
                 alt=""
@@ -105,7 +118,7 @@ export function FriendsTab() {
 
         {tab === 1 &&
           paddingFriends.map((friend) => (
-            <div className="friendCard paddingFriendCard">
+            <div className="friendCard paddingFriendCard" key={friend.id}>
               <img
                 src="https://assets.faceit-cdn.net/avatars/f6df2599-8174-467b-a4e9-fdfe0e40a719_1615691262786.jpg"
                 alt=""
@@ -117,7 +130,9 @@ export function FriendsTab() {
                 <Button onClick={() => acceptFriend(friend.name)} opaque>
                   aceitar
                 </Button>
-                <Button opaque>remover</Button>
+                <Button onClick={() => rejectFriend(friend.name)} opaque>
+                  remover
+                </Button>
               </div>
             </div>
           ))}

@@ -23,6 +23,10 @@ export function User() {
   const [sideBarAnimation, setSideBarAnimation] = useState(false)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<UserProps | undefined>()
+  const [isYourFriend, setIsYourFriend] = useState(false)
+  const [itsYou, setItsYou] = useState(false)
+
+  const [disableFriendshipButton, setDisableFriendshipButton] = useState(false)
 
   useEffect(() => {
     start()
@@ -38,19 +42,49 @@ export function User() {
           icon: data.icon,
           riot: data.riot,
         })
+        setIsYourFriend(response.data.isYourFriend)
+        setItsYou(response.data.itsYou)
       } catch (error) {
         history.push('/notfound')
       }
 
       setLoading(false)
     }
-  }, [name])
+  }, [name, history])
 
   useEffect(() => {
     setTimeout(() => {
       setSideBarAnimation(true)
     }, 200)
   }, [])
+
+  async function sendFriendRequest() {
+    api
+      .post(`/me/friend`, {
+        name: user?.name,
+      })
+      .then(() => {
+        setDisableFriendshipButton(true)
+      })
+      .catch(() => {
+        setDisableFriendshipButton(true)
+      })
+  }
+
+  async function undoFriendship() {
+    api
+      .delete(`/me/friend`, {
+        data: {
+          name: user?.name,
+        },
+      })
+      .then(() => {
+        setIsYourFriend(false)
+      })
+      .catch(() => {
+        setDisableFriendshipButton(true)
+      })
+  }
 
   if (loading) {
     return <h1>loading</h1>
@@ -73,7 +107,19 @@ export function User() {
           </div>
 
           <div className="end">
-            <Button>Adicionar</Button>
+            {itsYou ? (
+              <Button>Editar</Button>
+            ) : isYourFriend ? (
+              <Button onClick={undoFriendship}>Desfazer amizade</Button>
+            ) : (
+              <Button
+                disabled={disableFriendshipButton}
+                onClick={sendFriendRequest}
+                opaque
+              >
+                Adicionar
+              </Button>
+            )}
           </div>
         </UserCard>
         <UserInformation>
