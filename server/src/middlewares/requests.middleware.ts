@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import createError from 'http-errors'
-import User from '../schemas/user.schema'
+import User from '../model/user.model'
 
 import { verifyToken } from '../utils/jwt'
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import createError from 'http-errors'
 
-import User, { UserProps } from '../schemas/user.schema'
+import User, { UserProps } from '../model/user.model'
 
 import { mongoose } from '../services/mongoose'
 

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import createError from 'http-errors'
 
-import User from '../schemas/user.schema'
-import Sessions from '../schemas/sessions.schema'
+import User from '../model/user.model'
+import Sessions from '../model/sessions.model'
 
 import { getSummonerByName, getThirdPartyCode } from '../services/riotapi'
 
