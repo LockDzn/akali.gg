@@ -4,12 +4,14 @@ import createError from 'http-errors'
 import User from '../model/user.model'
 import Sessions from '../model/sessions.model'
 
+import { AuthorizedRequest } from '../interfaces/requests'
+
 import { compare, hash } from '../utils/hash'
 import { signToken, verifyToken } from '../utils/jwt'
 import { formatSummonerName } from '../utils/formatString'
 
-async function verify(request: Request, response: Response) {
-  const findUser = await User.findOne({ _id: request.user?._id }).exec()
+async function verify(request: AuthorizedRequest, response: Response) {
+  const findUser = await User.findOne({ _id: request.user._id }).exec()
   if (!findUser) {
     throw createError(400, `User already exists`)
   }

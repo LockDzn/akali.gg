@@ -1,9 +1,8 @@
 import { Request, Response } from 'express'
 import createError from 'http-errors'
 
+import { AuthorizedRequest } from '../interfaces/requests'
 import User, { UserProps } from '../model/user.model'
-
-import { mongoose } from '../services/mongoose'
 
 import { formatSummonerName } from '../utils/formatString'
 
@@ -63,8 +62,11 @@ async function friendsList(request: Request, response: Response) {
   return response.status(200).json(friends)
 }
 
-async function sendFriendRequest(request: Request, response: Response) {
-  const user = await User.findOne({ _id: request.user?._id }).exec()
+async function sendFriendRequest(
+  request: AuthorizedRequest,
+  response: Response
+) {
+  const user = await User.findOne({ _id: request.user._id }).exec()
 
   const { name } = request.body
 
@@ -109,7 +111,7 @@ async function sendFriendRequest(request: Request, response: Response) {
   response.status(200).json({ message: 'Friend request sent' })
 }
 
-async function removeFriend(request: Request, response: Response) {
+async function removeFriend(request: AuthorizedRequest, response: Response) {
   const { name } = request.body
 
   if (!name || name.trim() === '') {
@@ -119,7 +121,7 @@ async function removeFriend(request: Request, response: Response) {
     })
   }
 
-  const user = await User.findOne({ _id: request.user?._id })
+  const user = await User.findOne({ _id: request.user._id })
 
   if (!user?.friends.includes(name)) {
     throw createError(400, {
@@ -148,10 +150,11 @@ async function removeFriend(request: Request, response: Response) {
   })
 }
 
-async function friendsRequestList(request: Request, response: Response) {
-  const userId = request.user ? request.user._id : ''
-
-  const user = await User.findOne({ _id: userId }).exec()
+async function friendsRequestList(
+  request: AuthorizedRequest,
+  response: Response
+) {
+  const user = await User.findOne({ _id: request.user._id }).exec()
 
   const pendingFriendsName = user?.pendingFriends || []
 
@@ -176,8 +179,8 @@ async function friendsRequestList(request: Request, response: Response) {
   response.json(pendingFriends)
 }
 
-async function acceptFriend(request: Request, response: Response) {
-  const userId = request.user ? request.user._id : ''
+async function acceptFriend(request: AuthorizedRequest, response: Response) {
+  const userId = request.user._id
 
   const { name } = request.body
 
@@ -227,10 +230,13 @@ async function acceptFriend(request: Request, response: Response) {
     .json({ message: 'Friend request successfully accepted' })
 }
 
-async function rejectFriendRequest(request: Request, response: Response) {
+async function rejectFriendRequest(
+  request: AuthorizedRequest,
+  response: Response
+) {
   const { name } = request.body
 
-  const user = await User.findOne({ _id: request.user?._id })
+  const user = await User.findOne({ _id: request.user._id })
 
   if (!name || name.trim() === '') {
     throw createError(400, {

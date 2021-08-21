@@ -4,13 +4,15 @@ import createError from 'http-errors'
 import User from '../model/user.model'
 import Sessions from '../model/sessions.model'
 
+import { AuthorizedRequest } from '../interfaces/requests'
+
 import { getSummonerByName, getThirdPartyCode } from '../services/riotapi'
 
 import { hash } from '../utils/hash'
 import { signToken } from '../utils/jwt'
 import { formatSummonerName } from '../utils/formatString'
 
-async function index(request: Request, response: Response) {
+async function index(request: AuthorizedRequest, response: Response) {
   const { name } = request.params
 
   const formattedName = formatSummonerName(name)
@@ -33,13 +35,14 @@ async function index(request: Request, response: Response) {
     icon: user.icon,
     riot: user.riot,
     friends: user.friends,
+    createdAt: user.createdAt,
   }
 
-  if (request.user?.friends.includes(user.name)) {
+  if (request.user.friends.includes(user.name)) {
     data.isYourFriend = true
   }
 
-  if (request.user?.name === user.name) {
+  if (request.user.name === user.name) {
     data.itsYou = true
   }
 
