@@ -8,6 +8,6 @@ mongoose.connect(mongodb_url, {
   useUnifiedTopology: true,
 })
 
-const database = mongoose.connection
+const connection = mongoose.connection
 
-export { database, mongoose }
+export { connection, mongoose }

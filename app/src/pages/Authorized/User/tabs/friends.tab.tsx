@@ -9,6 +9,7 @@ import { FriendProps } from '../../../../interfaces'
 import { Button } from '../../../../components/Button'
 
 import { FriendsContainer } from './styles'
+import { NoProfileImage } from '../../../../components/NoProfileImage'
 
 export function FriendsTab() {
   const { name } = useParams() as { name: string; tab: string }
@@ -105,10 +106,15 @@ export function FriendsTab() {
         {tab === 0 &&
           friends.map((friend) => (
             <div className="friendCard" key={friend.id}>
-              <img
-                src="https://assets.faceit-cdn.net/avatars/f6df2599-8174-467b-a4e9-fdfe0e40a719_1615691262786.jpg"
-                alt=""
-              />
+              {friend.icon ? (
+                <img src={friend.icon} alt={`${friend.icon} icon`} />
+              ) : (
+                <NoProfileImage
+                  name={friend.displayName}
+                  width={48}
+                  height={48}
+                />
+              )}
               <Link to={`/user/${friend.name}`} className="name">
                 {friend.displayName}
               </Link>
