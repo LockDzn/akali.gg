@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import createError from 'http-errors'
+
 import User from '../model/user.model'
+
+import { UserRequest } from '../interfaces/requests'
 
 import { verifyToken } from '../utils/jwt'
 
 export default async function requestMiddleware(
-  request: Request,
+  request: UserRequest,
   response: Response,
   next: NextFunction
 ) {

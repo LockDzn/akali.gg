@@ -16,6 +16,10 @@ const user = new mongoose.Schema({
   },
   friends: [String],
   pendingFriends: [String],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 })
 
 export interface UserProps {
@@ -30,6 +34,7 @@ export interface UserProps {
   }
   friends: Array<String>
   pendingFriends: Array<String>
+  createdAt: Date
 }
 
 const User = mongoose.model<UserProps>('users', user)

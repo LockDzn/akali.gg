@@ -4,6 +4,8 @@ import createHttpError from 'http-errors'
 import Avatar from '../model/avatars.model'
 import User from '../model/user.model'
 
+import { AuthorizedRequest } from '../interfaces/requests'
+
 async function getUserAvatar(request: Request, response: Response) {
   const { id, name } = request.params
 
@@ -15,12 +17,15 @@ async function getUserAvatar(request: Request, response: Response) {
   response.send(avatar.image)
 }
 
-async function updateUserAvatar(request: Request, response: Response) {
+async function updateUserAvatar(
+  request: AuthorizedRequest,
+  response: Response
+) {
   const file = request.file
 
   const avatar = await new Avatar({
-    username: request.user?.name,
-    name: `${request.user?.name}.png`,
+    username: request.user.name,
+    name: `${request.user.name}.png`,
     size: file?.size,
     image: file?.buffer,
   }).save()
