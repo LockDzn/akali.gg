@@ -10,6 +10,7 @@ import { Auth } from '../pages/Auth'
 import { Home } from '../pages/Authorized/Home'
 import { CreateMatch } from '../pages/Authorized/CreateMatch'
 import { User } from '../pages/Authorized/User'
+import { Settings } from '../pages/Authorized/Settings'
 
 export function Routes() {
   return (
@@ -22,6 +23,7 @@ export function Routes() {
         <PrivateRoute path="/home" exact component={Home} />
         <PrivateRoute path="/create-match/:id" exact component={CreateMatch} />
         <PrivateRoute path="/user/:name/:tab?" component={User} />
+        <PrivateRoute path="/settings" component={Settings} />
       </Switch>
     </BrowserRouter>
   )

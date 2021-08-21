@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 
+import api from '../../../services/api.service'
 import { UserProps } from '../../../interfaces'
 
-import { Container, UserCard, UserInformation, Nav, LiLink } from './styles'
-
 import { Layout } from '../../../components/Layout'
-import { Tabs } from './tabs'
-
-import AkaliIcon from '../../../assets/icons/akali.png'
-import api from '../../../services/api.service'
 import { Button } from '../../../components/Button'
+import { NoProfileImage } from '../../../components/NoProfileImage'
+
+import { Tabs } from './tabs'
+import { Container, UserCard, UserInformation, Nav, LiLink } from './styles'
+import { Loading } from '../../../components/Loading'
+
 interface ParamsProps {
   name: string
   tab?: string
@@ -87,7 +88,7 @@ export function User() {
   }
 
   if (loading) {
-    return <h1>loading</h1>
+    return <Loading />
   }
 
   if (!user) {
@@ -99,7 +100,15 @@ export function User() {
       <Container>
         <UserCard>
           <div className="start">
-            <img className="userIcon" src={AkaliIcon} alt="User profile" />
+            {user.icon ? (
+              <img
+                className="userIcon"
+                src={user.icon}
+                alt={`${user.displayName} profile`}
+              />
+            ) : (
+              <NoProfileImage name={user.displayName} width={98} height={98} />
+            )}
             <div className="information">
               <h1>{user.displayName}</h1>
               <span>Membro desde 1 de março de 2021</span>
@@ -108,7 +117,7 @@ export function User() {
 
           <div className="end">
             {itsYou ? (
-              <Button>Editar</Button>
+              <Button onClick={() => history.push('/settings')}>Editar</Button>
             ) : isYourFriend ? (
               <Button onClick={undoFriendship}>Desfazer amizade</Button>
             ) : (

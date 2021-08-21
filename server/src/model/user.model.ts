@@ -1,4 +1,4 @@
-import { mongoose, database } from '../services/mongoose'
+import { mongoose, connection } from '../services/mongoose'
 
 const user = new mongoose.Schema({
   displayName: {
